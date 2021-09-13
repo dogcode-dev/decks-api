@@ -1,10 +1,10 @@
 FROM node:latest
 
-RUN mkdir -p /usr/src/decks
+RUN mkdir -p /usr/src/decks-api
 
-WORKDIR /usr/src/decks
+WORKDIR /usr/src/decks-api
 
-COPY . /usr/src/decks
+COPY . /usr/src/decks-api
 
 RUN npm install
 
