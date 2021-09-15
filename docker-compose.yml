@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+  mongo-decks:
+    image: mongo:latest #excellalabs/mongo
+    container_name: mongo-decks
+    ports:
+      - "27017:27017"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /home/mongodb/database:/data/db
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+      MONGODB_APPLICATION_DATABASE: decks
+      MONGODB_APPLICATION_USER: decks
+      MONGODB_APPLICATION_PASS: 123456
   decks:
     container_name: decks
     build: .
@@ -8,7 +25,6 @@ services:
       - mongo-decks
     links:
       - mongo-decks
-    command: npm run start
     ports:
       - 4000:4000
     volumes:
@@ -17,14 +33,4 @@ services:
     #env_file: .env.dev
     environment:
       NODE_ENV: dev
-      PORT: 3003
-  mongo-decks:
-    image: excellalabs/mongo
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: 123456
-      MONGODB_APPLICATION_DATABASE: decks
-      MONGODB_APPLICATION_USER: decks
-      MONGODB_APPLICATION_PASS: 123456
+      PORT: 4000

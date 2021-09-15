@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from 'type-graphql';
+import { Field, ID, InputType, ObjectType } from 'type-graphql';
 import Card from './Card';
 import { IQuestion } from '../database/schemas/Question';
 import Node from './Node';
@@ -25,6 +25,7 @@ class Question implements IQuestion, Node {
   updatedAt: Date;
 }
 
+@InputType()
 export class QuestionMutationInput {
   @Field()
   card: string;

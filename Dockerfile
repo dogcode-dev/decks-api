@@ -1,13 +1,18 @@
 FROM node:latest
 
-RUN mkdir -p /usr/src/decks-api
+RUN apt-get update && \
+    apt-get upgrade
 
-WORKDIR /usr/src/decks-api
+#RUN mkdir -p /usr/decks
 
-COPY . /usr/src/decks-api
+WORKDIR /decks
 
-RUN npm install
+COPY package.json ./
+
+RUN yarn
+
+COPY . /decks
 
 EXPOSE 4000
 
-CMD [ "npm", "run", "start" ]
+CMD [ "yarn", "server" ]

@@ -7,14 +7,14 @@ import { hash } from 'bcryptjs';
 class UserController {
 
   @Query(returns => [User], { name: 'users' })
-  async find() {
+  static async find() {
     const users = await MongoUser.find().select(['id', 'name', 'email', 'nick', 'createdAt', 'updatedAt']);
 
     return users;
   }
 
   @Query(returns => User, { name: 'user' })
-  async findById(
+  static async findById(
     @Arg("id") id: string
   ) {
     const user = await MongoUser.findById(id);
@@ -27,7 +27,7 @@ class UserController {
   }
 
   @Mutation(returns => User, { name: 'createUser' })
-  async create(
+  static async create(
     @Arg("name") name: string,
     @Arg("email") email: string,
     @Arg("nick") nick: string,

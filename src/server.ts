@@ -1,6 +1,10 @@
 import 'reflect-metadata';
 
-import { ApolloServer } from 'apollo-server';
+import bodyParser from 'body-parser';
+import express from 'express';
+import { ApolloServer } from 'apollo-server-express';
+
+import router from './router'
 
 import './database';
 import './database/schemas/User';
@@ -10,7 +14,14 @@ import './database/schemas/Question';
 
 import schema from './schemas';
 
-const server = new ApolloServer({
+const server = express();
+
+server.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+server.use(bodyParser.urlencoded({ extended: true }));
+server.use(express.static('dist'));
+server.use(router);
+
+const apolloServer = new ApolloServer({
   schema,
   context: ({ req }) => {
     const context = {
@@ -21,5 +32,9 @@ const server = new ApolloServer({
     return context;
   }
 });
+apolloServer.applyMiddleware({ app: server, path: '/graphql' });
 
-server.listen({ port: 4000 }, () => console.log('Server is running on port 4000'))
+const port = process.env.PORT || 4000;
+server.listen({port}, () => console.log(`Server is running on port ${port}`))
+
+export default server;
