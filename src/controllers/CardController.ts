@@ -8,29 +8,29 @@ class CardController {
 
     @Query(returns => [Card], { name: 'cards' })
     @Authorized()
-    async find() {
-        const Cards = await MongoCard.find().select(['id', 'name', "Card", "owner", 'createdAt', 'updatedAt']);
+    static async find() {
+        const cards = await MongoCard.find().select(['id', 'name', "category", "owner", 'createdAt', 'updatedAt']);
     
-        return Cards;
+        return cards;
     }
 
     @Query(returns => Card, { name: 'card' })
     @Authorized()
-    async findById(
+    static async findById(
         @Arg("id") id: string
     ) {
-        const Card = await MongoCard.findById(id);
+        const card = await MongoCard.findById(id);
 
-        if (!Card) {
+        if (!card) {
         throw new Error('Card does not exists');
         }
 
-        return Card;
+        return card;
     }
 
     @Mutation(returns => Card, { name: 'createCard' })
     @Authorized()
-    async create(
+    static async create(
         @Arg("data") data: CardMutationInput,    
     ) {
   
@@ -68,12 +68,12 @@ class CardController {
     }*/
 
     @Query(returns => Boolean, {name: "existsCard"})
-    async exists(
+    static async exists(
         @Arg("name") name?: string,
     ) {
         if(!name) return false;
         const filter = { name: { $regex: name, $options: 'i' }};
-        return await MongoCard.exists({filter});
+        return await MongoCard.exists({ filter });
     }
 
 }

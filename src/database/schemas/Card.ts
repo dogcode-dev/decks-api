@@ -21,7 +21,6 @@ export interface ICardDocument extends Document {
     updatedAt?: Date;
 }
 
-
 const CardSchema = new Schema<ICardDocument>(
     {
         name: {

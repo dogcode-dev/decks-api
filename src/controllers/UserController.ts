@@ -1,4 +1,4 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
 import User from "../schemas/User";
 import MongoUser from "../database/schemas/User";
 import { hash } from 'bcryptjs';
@@ -7,6 +7,7 @@ import { hash } from 'bcryptjs';
 class UserController {
 
   @Query(returns => [User], { name: 'users' })
+  @Authorized()
   static async find() {
     const users = await MongoUser.find().select(['id', 'name', 'email', 'nick', 'createdAt', 'updatedAt']);
 
@@ -14,6 +15,7 @@ class UserController {
   }
 
   @Query(returns => User, { name: 'user' })
+  @Authorized()
   static async findById(
     @Arg("id") id: string
   ) {

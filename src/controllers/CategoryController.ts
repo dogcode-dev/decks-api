@@ -7,47 +7,47 @@ class CategoryController {
 
   @Query(returns => [Category], { name: 'categories' })
   @Authorized()
-  async find() {
-    const Categorys = await MongoCategory.find().select(['id', 'name', 'createdAt', 'updatedAt']);
+  static async find() {
+    const categories = await MongoCategory.find().select(['id', 'name', 'createdAt', 'updatedAt']);
 
-    return Categorys;
+    return categories;
   }
 
   @Query(returns => Category, { name: 'category' })
   @Authorized()
-  async findById(
+  static async findById(
     @Arg("id") id: string
   ) {
-    const Category = await MongoCategory.findById(id);
+    const category = await MongoCategory.findById(id);
 
-    if (!Category) {
+    if (!category) {
       throw new Error('Category does not exists');
     }
 
-    return Category;
+    return category;
   }
 
   @Mutation(returns => Category, { name: 'createCategory' })
   @Authorized()
-  async create(
+  static async create(
     @Arg("name") name: string,
   ) {
 
-    const Category = await MongoCategory.create({ name });
+    const category = await MongoCategory.create({ name });
 
-    return Category;
+    return category;
   }
 
   @Mutation(returns => Category, {name: 'updateCategory'})
   @Authorized()
-  async update(
+  static async update(
     @Arg("id") id: string,
     @Arg("name") name: string,
   ) {
 
-    const Category = await MongoCategory.findByIdAndUpdate( id, { name }, { new: true });
+    const category = await MongoCategory.findByIdAndUpdate( id, { name }, { new: true });
 
-    return Category;
+    return category;
 
   }
 

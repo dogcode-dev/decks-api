@@ -7,29 +7,29 @@ class QuestionController {
 
     @Query(returns => [Question], { name: 'questions' })
     @Authorized()
-    async find() {
-        const Cards = await MongoQuestion.find().select(['id', 'card', 'question', 'answer', 'createdAt', 'updatedAt']);
+    static async find() {
+        const questions = await MongoQuestion.find().select(['id', 'card', 'question', 'answer', 'createdAt', 'updatedAt']);
     
-        return Cards;
+        return questions;
     }
 
     @Query(returns => Question, { name: 'question' })
     @Authorized()
-    async findById(
+    static async findById(
         @Arg('id') id: string
     ) {
-        const Question = await MongoQuestion.findById(id);
+        const quest = await MongoQuestion.findById(id);
 
-        if (!Question) {
-        throw new Error('Question does not exists');
+        if (!quest) {
+            throw new Error('Question does not exists');
         }
 
-        return Question;
+        return quest;
     }
 
     @Mutation(returns => Question, { name: 'createQuestion' })
     @Authorized()
-    async create(
+    static async create(
         @Arg('data') data: QuestionMutationInput,    
     ) {
   
@@ -40,7 +40,8 @@ class QuestionController {
 
     }
     
-    /*@Mutation(returns => Question, {name: 'updateQuestion'})
+    /*
+    @Mutation(returns => Question, {name: 'updateQuestion'})
     @Authorized()
     async update(
         @Arg('id') id: string, 
@@ -55,7 +56,8 @@ class QuestionController {
         });
 
         return Question;
-    }*/
+    }
+    */
 
 }
 

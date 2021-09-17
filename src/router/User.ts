@@ -28,7 +28,7 @@ userRouter.post('/', (req, res) => {
         res.json(user);
     }).catch((err) => {        
         console.log(`Error: ${err}`);
-        res.status(500).send({ message: `Error when create a new user!` });
+        res.status(500).send({ message: 'Error when create a new user!' });
     });
 });
 

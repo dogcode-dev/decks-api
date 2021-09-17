@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+  decks:
+    container_name: decks
+    build: .
+    command: npm run start
+    depends_on:
+      - mongo-decks
+    links:
+      - mongo-decks
+    ports:
+      - 4000:4000
+    volumes:
+      - .:/usr/decks
+      - /usr/decks/node_modules
+    #env_file: .env.dev
+    environment:
+      NODE_ENV: dev
+      PORT: 4000
   mongo-decks:
     image: mongo:latest #excellalabs/mongo
     container_name: mongo-decks
@@ -18,19 +35,3 @@ services:
       MONGODB_APPLICATION_DATABASE: decks
       MONGODB_APPLICATION_USER: decks
       MONGODB_APPLICATION_PASS: 123456
-  decks:
-    container_name: decks
-    build: .
-    depends_on:
-      - mongo-decks
-    links:
-      - mongo-decks
-    ports:
-      - 4000:4000
-    volumes:
-      - .:/decks
-      - /decks/node_modules
-    #env_file: .env.dev
-    environment:
-      NODE_ENV: dev
-      PORT: 4000

@@ -1,18 +1,13 @@
-FROM node:latest
+FROM node:alpine
 
-RUN apt-get update && \
-    apt-get upgrade
+WORKDIR /usr/decks
 
-#RUN mkdir -p /usr/decks
+COPY package*.json ./
 
-WORKDIR /decks
+RUN npm install
 
-COPY package.json ./
-
-RUN yarn
-
-COPY . /decks
+COPY . .
 
 EXPOSE 4000
 
-CMD [ "yarn", "server" ]
+CMD [ "npm", "server" ]
