@@ -1,45 +1,62 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
-import User from "../schemas/User";
 import MongoUser from "../database/schemas/User";
-import { hash } from 'bcryptjs';
+import { hash } from "bcryptjs";
+import { Request, Response } from "express";
 
-@Resolver(User)
 class UserController {
+  static async find(request: Request, response: Response) {
+    try {
+      const users = await MongoUser.find().select([
+        "id",
+        "name",
+        "email",
+        "nick",
+        "createdAt",
+        "updatedAt",
+      ]);
 
-  @Query(returns => [User], { name: 'users' })
-  @Authorized()
-  static async find() {
-    const users = await MongoUser.find().select(['id', 'name', 'email', 'nick', 'createdAt', 'updatedAt']);
-
-    return users;
-  }
-
-  @Query(returns => User, { name: 'user' })
-  @Authorized()
-  static async findById(
-    @Arg("id") id: string
-  ) {
-    const user = await MongoUser.findById(id);
-
-    if (!user) {
-      throw new Error('User does not exists');
+      return response.json(users);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
     }
-
-    return user;
   }
 
-  @Mutation(returns => User, { name: 'createUser' })
-  static async create(
-    @Arg("name") name: string,
-    @Arg("email") email: string,
-    @Arg("nick") nick: string,
-    @Arg("password") password: string,
-  ) {
-    const hashedPassword = await hash(password, 8);
+  static async findById(request: Request, response: Response) {
+    try {
+      const user = await MongoUser.findById(request.params.id);
 
-    const user = await MongoUser.create({ nick, name, email, password: hashedPassword });
+      if (!user) {
+        throw new Error("User does not exists");
+      }
 
-    return user;
+      return user;
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
+    }
+  }
+
+  static async create(request: Request, response: Response) {
+    try {
+      const { name, email, nick, password } = request.body;
+
+      const hashedPassword = await hash(password, 8);
+
+      const user = await MongoUser.create({
+        nick,
+        name,
+        email,
+        password: hashedPassword,
+      });
+
+      return user;
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
+    }
   }
 }
 

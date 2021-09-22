@@ -29,9 +29,9 @@ services:
     volumes:
       - /home/mongodb/database:/data/db
     restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: 123456
-      MONGODB_APPLICATION_DATABASE: decks
-      MONGODB_APPLICATION_USER: decks
-      MONGODB_APPLICATION_PASS: 123456
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: mongo
+    #   MONGO_INITDB_ROOT_PASSWORD: 123456
+    #   MONGODB_APPLICATION_DATABASE: decks
+    #   MONGODB_APPLICATION_USER: decks
+    #   MONGODB_APPLICATION_PASS: 123456
