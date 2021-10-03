@@ -8,8 +8,8 @@ import questionRouter from "./Question";
 const router = express.Router();
 
 router.use(userRouter);
-router.use("/card", cardRouter);
-router.use("/category", categoryRouter);
-router.use("/question", questionRouter);
+router.use(cardRouter);
+router.use(categoryRouter);
+router.use(questionRouter);
 
 export default router;

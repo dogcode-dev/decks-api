@@ -1,46 +1,48 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from 'type-graphql';
-import Question, { QuestionMutationInput } from '../schemas/Question';
-import MongoQuestion, { IQuestionDocument } from '../database/schemas/Question';
-
-@Resolver(Question)
+import Question from "../database/schemas/Question";
+import { Request, Response } from "express";
 class QuestionController {
+  static async find(request: Request, response: Response) {
+    try {
+      const questions = await Question.find();
 
-    @Query(returns => [Question], { name: 'questions' })
-    @Authorized()
-    static async find() {
-        const questions = await MongoQuestion.find().select(['id', 'card', 'question', 'answer', 'createdAt', 'updatedAt']);
-    
-        return questions;
+      return response.json(questions);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
     }
+  }
 
-    @Query(returns => Question, { name: 'question' })
-    @Authorized()
-    static async findById(
-        @Arg('id') id: string
-    ) {
-        const quest = await MongoQuestion.findById(id);
+  static async findById(request: Request, response: Response) {
+    try {
+      const question = await Question.findById(request.params.id);
 
-        if (!quest) {
-            throw new Error('Question does not exists');
-        }
+      if (!question) {
+        throw new Error("Question does not exists");
+      }
 
-        return quest;
+      return question;
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
     }
+  }
 
-    @Mutation(returns => Question, { name: 'createQuestion' })
-    @Authorized()
-    static async create(
-        @Arg('data') data: QuestionMutationInput,    
-    ) {
-  
-        const { card, question, answer } = data;
+  static async create(request: Request, response: Response) {
+    try {
+      const { card, question, answer } = request.body;
 
-        const Question = await MongoQuestion.create({ card, question, answer });
-        return await MongoQuestion.findById(Question.id).populate('card').exec();
-
+      const createdQuestion = await Question.create({ card, question, answer });
+      return response.json(createdQuestion);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
     }
-    
-    /*
+  }
+
+  /*
     @Mutation(returns => Question, {name: 'updateQuestion'})
     @Authorized()
     async update(
@@ -50,15 +52,14 @@ class QuestionController {
         @Arg('answer') answer?: string, 
     ) {
 
-        const Question = await MongoQuestion.findByIdAndUpdate(id, { question, answer, card }, { new: true }, function(err: any, question: Question): Promise<ICardDocument | null> {
+        const Question = await Question.findByIdAndUpdate(id, { question, answer, card }, { new: true }, function(err: any, question: Question): Promise<ICardDocument | null> {
             if (err) throw new Error(err);
-            return MongoQuestion.findById(question.id).populate('card').exec();
+            return Question.findById(question.id).populate('card').exec();
         });
 
         return Question;
     }
     */
-
 }
 
 export default QuestionController;

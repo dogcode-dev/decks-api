@@ -1,56 +1,57 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
-import Category from "../schemas/Category";
-import MongoCategory from "../database/schemas/Category";
+import Category from "../database/schemas/Category";
+import { Request, Response } from "express";
 
-@Resolver(Category)
 class CategoryController {
+  static async find(request: Request, response: Response) {
+    try {
+      const categories = await Category.find();
 
-  @Query(returns => [Category], { name: 'categories' })
-  @Authorized()
-  static async find() {
-    const categories = await MongoCategory.find().select(['id', 'name', 'createdAt', 'updatedAt']);
-
-    return categories;
-  }
-
-  @Query(returns => Category, { name: 'category' })
-  @Authorized()
-  static async findById(
-    @Arg("id") id: string
-  ) {
-    const category = await MongoCategory.findById(id);
-
-    if (!category) {
-      throw new Error('Category does not exists');
+      return response.json(categories);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
     }
-
-    return category;
   }
 
-  @Mutation(returns => Category, { name: 'createCategory' })
-  @Authorized()
-  static async create(
-    @Arg("name") name: string,
-  ) {
+  static async findById(request: Request, response: Response) {
+    try {
+      const category = await Category.findById(request.params.id);
 
-    const category = await MongoCategory.create({ name });
+      if (!category) {
+        throw new Error("Category does not exists");
+      }
 
-    return category;
+      return response.json(category);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
+    }
   }
 
-  @Mutation(returns => Category, {name: 'updateCategory'})
-  @Authorized()
-  static async update(
-    @Arg("id") id: string,
-    @Arg("name") name: string,
-  ) {
+  static async create(request: Request, response: Response) {
+    try {
+      const { name } = request.body;
+      const category = await Category.create({ name });
 
-    const category = await MongoCategory.findByIdAndUpdate( id, { name }, { new: true });
-
-    return category;
-
+      return response.json(category);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
+    }
   }
 
+  static async update(request: Request, response: Response) {
+    const category = await Category.findByIdAndUpdate(
+      request.params.id,
+      { name: request.body.name },
+      { new: true }
+    );
+
+    return response.json(category);
+  }
 }
 
 export default CategoryController;

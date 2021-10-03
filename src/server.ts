@@ -5,10 +5,7 @@ import express from "express";
 import router from "./router";
 
 import "./database";
-import "./database/schemas/User";
-import "./database/schemas/Category";
-import "./database/schemas/Card";
-import "./database/schemas/Question";
+import "./database/schemas";
 
 const server = express();
 

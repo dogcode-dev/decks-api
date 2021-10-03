@@ -1,18 +1,11 @@
-import MongoUser from "../database/schemas/User";
+import User from "../database/schemas/User";
 import { hash } from "bcryptjs";
 import { Request, Response } from "express";
 
 class UserController {
   static async find(request: Request, response: Response) {
     try {
-      const users = await MongoUser.find().select([
-        "id",
-        "name",
-        "email",
-        "nick",
-        "createdAt",
-        "updatedAt",
-      ]);
+      const users = await User.find();
 
       return response.json(users);
     } catch (e) {
@@ -24,13 +17,13 @@ class UserController {
 
   static async findById(request: Request, response: Response) {
     try {
-      const user = await MongoUser.findById(request.params.id);
+      const user = await User.findById(request.params.id);
 
       if (!user) {
         throw new Error("User does not exists");
       }
 
-      return user;
+      return response.json(user);
     } catch (e) {
       return response.status(500).json({
         error: e,
@@ -44,14 +37,14 @@ class UserController {
 
       const hashedPassword = await hash(password, 8);
 
-      const user = await MongoUser.create({
+      const user = await User.create({
         nick,
         name,
         email,
         password: hashedPassword,
       });
 
-      return user;
+      return response.json(user);
     } catch (e) {
       return response.status(500).json({
         error: e,

@@ -1,52 +1,54 @@
-import { Arg, Authorized, Mutation, Query, Resolver } from "type-graphql";
-import MongoCard, { ICardDocument } from "../database/schemas/Card";
-import Card, { CardMutationInput } from "../schemas/Card";
+import Card from "../database/schemas/Card";
 import { Error } from "mongoose";
+import { Request, Response } from "express";
 
-@Resolver(Card)
 class CardController {
-
-    @Query(returns => [Card], { name: 'cards' })
-    @Authorized()
-    static async find() {
-        const cards = await MongoCard.find().select(['id', 'name', "category", "owner", 'createdAt', 'updatedAt']);
-    
-        return cards;
+  static async find(request: Request, response: Response) {
+    try {
+      const cards = await Card.find().populate(["category", "owner"]);
+      return response.json(cards);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
     }
+  }
 
-    @Query(returns => Card, { name: 'card' })
-    @Authorized()
-    static async findById(
-        @Arg("id") id: string
-    ) {
-        const card = await MongoCard.findById(id);
+  static async findById(request: Request, response: Response) {
+    try {
+      const card = await Card.findById(request.params.id);
 
-        if (!card) {
-        throw new Error('Card does not exists');
-        }
+      if (!card) {
+        throw new Error("Card does not exists");
+      }
 
-        return card;
+      return response.json(card);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
     }
+  }
 
-    @Mutation(returns => Card, { name: 'createCard' })
-    @Authorized()
-    static async create(
-        @Arg("data") data: CardMutationInput,    
-    ) {
-  
-        const { name, category, owner } = data;
+  static async create(request: Request, response: Response) {
+    const { name, category, owner } = request.body;
 
-        const existedCard = await this.exists(name);
-        if(existedCard) {
-            return existedCard;
-        }
+    try {
+      // const existedCard = await this.exists(name);
+      // if (existedCard) {
+      //   return existedCard;
+      // }
 
-        const card = await MongoCard.create({ name, category, owner });
-        return await MongoCard.findById(card.id).populate('category').populate('owner').exec();
-
+      const card = await Card.create({ name, category, owner });
+      return response.json(card);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
     }
-    
-    /*
+  }
+
+  /*
     @Mutation(returns => Card, {name: 'updateCard'})
     @Authorized()
     async update(
@@ -59,23 +61,22 @@ class CardController {
             return existedCard;
         }
 
-        const card = await MongoCard.findByIdAndUpdate(id, { name, category }, { new: true }, function(err: any, card: Card): Promise<ICardDocument | null> {
+        const card = await Card.findByIdAndUpdate(id, { name, category }, { new: true }, function(err: any, card: Card): Promise<ICardDocument | null> {
             if (err) throw new Error(err);
-            return MongoCard.findById(card.id).populate('category').exec();
+            return Card.findById(card.id).populate('category').exec();
         });
 
         return card;
     }*/
 
-    @Query(returns => Boolean, {name: "existsCard"})
-    static async exists(
-        @Arg("name") name?: string,
-    ) {
-        if(!name) return false;
-        const filter = { name: { $regex: name, $options: 'i' }};
-        return await MongoCard.exists({ filter });
+  static async exists(name?: string) {
+    if (!name) {
+      return false;
     }
 
+    const filter = { name: { $regex: name, $options: "i" } };
+    return await Card.exists({ filter });
+  }
 }
 
 export default CardController;
