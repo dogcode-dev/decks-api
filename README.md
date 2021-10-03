@@ -32,6 +32,5 @@ Then, just start the API with the command:
 
 - NodeJS
 - Typescript
-- GraphQl
-- Apollo Server
-- Typegraphql
+- Mongoose
+- Express
