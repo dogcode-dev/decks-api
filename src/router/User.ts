@@ -1,11 +1,13 @@
 import express from "express";
 import UserController from "../controllers/UserController";
 
+import AuthenticationAssurance from "../middlewares/AuthenticationAssurance";
+
 const userRouter = express.Router();
 
-userRouter.get("/users", UserController.find);
+userRouter.get("/users", AuthenticationAssurance, UserController.find);
 
-userRouter.get("/user:id", UserController.findById);
+userRouter.get("/user:id", AuthenticationAssurance, UserController.findById);
 
 userRouter.post("/user", UserController.create);
 

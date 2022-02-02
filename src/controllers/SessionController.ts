@@ -1,43 +1,57 @@
-import { Arg, Mutation, Resolver } from "type-graphql";
 import MongoUser from "../database/schemas/User";
-import { compare } from 'bcryptjs';
-import Auth from "../schemas/Auth";
+import { compare } from "bcryptjs";
 import AuthConfig from "../config/auth";
 import { sign } from "jsonwebtoken";
-
-@Resolver(Auth)
+import { Request, Response } from "express";
 class AuthController {
+  static async create(request: Request, response: Response) {
+    const { email, password } = request.body;
 
-  @Mutation(returns => Auth)
-  async signIn(
-    @Arg("email") email: string,
-    @Arg("password") password: string,
-  ) {
     const user = await MongoUser.findOne({
-      email
+      $or: [
+        {
+          email,
+        },
+        {
+          nick: email,
+        },
+      ],
     });
 
     if (!user) {
-      throw new Error('Incorrect email/password combination.');
+      // throw new Error("Incorrect email/password combination.");
+      return response.status(500).json({
+        status: "error",
+        message: "Incorrect email/password combination.",
+      });
     }
 
     const passwordMatched = await compare(password, user.password);
 
     if (!passwordMatched) {
-      throw new Error('Incorrect email/password combination.');
+      // throw new Error("Incorrect email/password combination.");
+      return response.status(500).json({
+        status: "error",
+        message: "Incorrect email/password combination.",
+      });
     }
 
     const { secret, expiresIn } = AuthConfig.jwt;
 
     const token = sign({}, secret, {
-      subject: `"${user.id}"`,
-      expiresIn
+      subject: `${user.id}`,
+      expiresIn,
     });
 
-    return {
+    return response.json({
       token,
-      user
-    }
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        nick: user.nick,
+      },
+    });
   }
 }
 

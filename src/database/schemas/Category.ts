@@ -1,6 +1,6 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
-const normalize = require('normalize-mongoose');
+const normalize = require("normalize-mongoose");
 
 export interface ICategory {
   id?: any;
@@ -24,21 +24,21 @@ const CategorySchema = new Schema<ICategoryDocument>(
     createdAt: {
       type: Date,
       default: Date.now,
-      required: false
+      required: false,
     },
     updatedAt: {
       type: Date,
       default: Date.now,
-      required: false
+      required: false,
     },
   },
   {
     timestamps: {},
-  },
+  }
 );
 
 CategorySchema.plugin(normalize);
 
-const model = mongoose.model<ICategoryDocument>('Category', CategorySchema);
+const model = mongoose.model<ICategoryDocument>("Category", CategorySchema);
 
 export default model;

@@ -1,9 +1,27 @@
 import Question from "../database/schemas/Question";
 import { Request, Response } from "express";
+
+const ObjectId = require("mongodb").ObjectID;
 class QuestionController {
   static async find(request: Request, response: Response) {
     try {
       const questions = await Question.find();
+
+      return response.json(questions);
+    } catch (e) {
+      return response.status(500).json({
+        error: e,
+      });
+    }
+  }
+
+  static async findByCardId(request: Request, response: Response) {
+    try {
+      const questions = await Question.find({
+        card: {
+          $eq: ObjectId(request.params.cardId),
+        },
+      }).select({ id: 1, question: 1, answer: 1 });
 
       return response.json(questions);
     } catch (e) {

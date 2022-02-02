@@ -7,6 +7,8 @@ questionRouter.get("/questions", QuestionController.find);
 
 questionRouter.get("/question/:id", QuestionController.findById);
 
+questionRouter.get("/card/:cardId/questions", QuestionController.findByCardId);
+
 questionRouter.post("/question", QuestionController.create);
 
 /*

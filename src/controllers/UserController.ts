@@ -6,7 +6,6 @@ class UserController {
   static async find(request: Request, response: Response) {
     try {
       const users = await User.find();
-
       return response.json(users);
     } catch (e) {
       return response.status(500).json({
@@ -16,40 +15,46 @@ class UserController {
   }
 
   static async findById(request: Request, response: Response) {
-    try {
-      const user = await User.findById(request.params.id);
+    const user = await User.findById(request.params.id);
 
-      if (!user) {
-        throw new Error("User does not exists");
-      }
-
-      return response.json(user);
-    } catch (e) {
+    if (!user) {
       return response.status(500).json({
-        error: e,
+        message: "User does not exists",
       });
     }
+
+    return response.json(user);
   }
 
   static async create(request: Request, response: Response) {
-    try {
-      const { name, email, nick, password } = request.body;
+    const { name, email, nick, password } = request.body;
 
-      const hashedPassword = await hash(password, 8);
+    const emailExists = await User.findOne({ email });
 
-      const user = await User.create({
-        nick,
-        name,
-        email,
-        password: hashedPassword,
-      });
-
-      return response.json(user);
-    } catch (e) {
+    if (emailExists) {
       return response.status(500).json({
-        error: e,
+        message: "Usuário já existe com e-mail ou nome de usuário",
       });
     }
+
+    const nickExists = await User.findOne({ nick });
+
+    if (nickExists) {
+      return response.status(500).json({
+        message: "Usuário já existe com e-mail ou nome de usuário",
+      });
+    }
+
+    const hashedPassword = await hash(password, 8);
+
+    const user = await User.create({
+      nick,
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    return response.json(user);
   }
 }
 

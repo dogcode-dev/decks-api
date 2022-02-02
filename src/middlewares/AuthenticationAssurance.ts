@@ -1,27 +1,37 @@
-import {verify} from 'jsonwebtoken';
-import {AuthChecker} from 'type-graphql';
-import AuthConfig from '../config/auth';
+import { Request, Response, NextFunction } from "express";
+import { verify } from "jsonwebtoken";
+import Auth from "../config/auth";
 
-interface Context {
-  token?: string;
+interface TokenPayload {
+  iat: number;
+  exp: number;
+  sub: string;
 }
 
-const AuthenticationAssurance: AuthChecker<Context> = ({ context }): boolean => {
-  const authHeader = context.token;
+export default function AuthenticationAssurance(
+  request: Request,
+  response: Response,
+  next: NextFunction
+): void {
+  const authHeader = request.headers.authorization;
 
-  if(!authHeader) {
-    return false;
+  if (!authHeader) {
+    throw new Error("Token is missing");
   }
 
-  const [, token] = authHeader.split(' ');
+  const [, token] = authHeader.split(" ");
 
   try {
-    const decoded = verify(token, AuthConfig.jwt.secret);
+    const decoded = verify(token, Auth.jwt.secret);
 
-    return !!decoded;
+    const { sub } = decoded as TokenPayload;
+
+    request.user = {
+      id: sub,
+    };
+
+    next();
   } catch {
-    return false;
+    throw new Error("Invalid token");
   }
 }
-
-export default AuthenticationAssurance;
